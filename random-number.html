@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<!--
+* Title:        Random Number Generator
+* Version:      4
+* Author:       Hope E. Moore (hopemoore@gmail.com) http://www.hopemoore.com
+* Description:  This random number generator generates a number between a range
+*               specified by the user. The user can choose whether or not the
+*               numbers can repeat. Updating the upper or lower bound number or
+*               whether the user wants the numbers to repeat.
+* Licensing:    This file is free to use for Ohio University faculy, staff,
+*               administration, and students. Any use outside of Ohio
+*               University should provide attribution to Ohio University along
+*               with a link to the university's website (http://www.ohio.edu).
+-->
+<html>
+    <head>
+        <title>Random Number Generator</title>
+        <meta charset="UTF-8" />
+        <meta name="description" content="Random Number Generator" />
+        <meta name="keywords" content="random, random number, table picker, number picker, dice, roll dice, pick number" />
+        <meta name="author" content="Hope E. Moore" />
+        <link rel="stylesheet" type="text/css" media="screen" href="http://www.ohio.edu/common/css/base2014/OHIO-fonts-2014.cfm?style=book&amp;family=Frutiger" />
+        <style type="text/css">
+            body, p, h2 {
+                font-family: 'Frutiger','Open Sans', 'Tahoma', Arial, sans-serif;
+                font-size: 12pt;
+                text-align: center;
+            }
+            
+            h2 { font-size: 24px; }
+            
+            button {
+                border: 0;
+                border-radius: 5px;
+                margin: 20px;
+                width: 150px;
+                height: 50px;
+            }
+            
+            #reuse, #roll, #number, .number-input {
+                font-family: 'Frutiger','Open Sans', 'Tahoma', Arial, sans-serif;
+            }
+            
+            #reuse p { font-size: 10pt; }
+            
+            #main {
+                float: left;
+                padding-left: 25px;
+            }
+            
+            #roll {
+                font-size: 16pt;
+                color: #FFF;
+                background-color: #00694E;
+            }
+            
+            #result { padding-top: 15px; }
+            
+            #result p { font-size: 14pt; }
+            
+            #number {
+                font-size: 150pt;
+                color: #1F3730
+            }
+            
+            #endmsg {
+                font-size: 16pt;
+                color: #1F3730
+            }
+            
+            .number-input { width: 20px; }
+        </style>
+    </head>
+    
+    <body>
+        <div id="main">
+            <h2>Random Number Generator</h2>
+            <div id="intro">
+                <p>Please choose your range of numbers:<br />
+            </div>
+            
+            <div id="range">
+                <p>Choose a number between <input id="lower" class="number-input" type="text" value="1" name="lower-bound" onchange="update()" size="1"> and
+                <input id="upper" class="number-input" type="text" value="10" name="upper-bound" onchange="update()" size="1">.</p>
+                <p><input type="checkbox" id="reuse" onchange="update()"> Do not reuse numbers</p>
+            </div>
+            
+            <div id="button">
+                <button id="roll" onclick="roll(lower, upper)">Pick Number</button>
+            </div>
+        </div>
+        
+        <div id="result">
+            <p>Result:</p>
+            <div id="number"></div>
+            <div id="endmsg"></div>
+        </div>
+        
+         <script type="text/javascript">
+            var lower = document.getElementById("lower").value; // Lower bound
+            var upper = document.getElementById("upper").value; // Upper bound
+            var number = document.getElementById("number"); // Result number
+            var endmsg = document.getElementById("endmsg"); // End message
+            var numbersUsed = new Array(); // Numbers used
+            var count = 0; // Number of rolls
+            var endMsg = "";
+                
+            // Turns the current lower and upper bounds into workable integers
+            lower = parseInt(lower);
+            upper = parseInt(upper);
+            
+            /**
+             * update()
+             * 1. turns the roll button back on
+             * 2. resets the numbers used
+             * 3. resets the number of rolls,
+             * 4. clears the end message
+             * 5. turns the new lower and upper bounds into workable integers
+            */
+            function update() {
+                document.getElementById("roll").disabled = false;
+                numbersUsed.splice(0,numbersUsed.length);
+                count = 0;
+                endmsg.innerHTML = "";
+                updateLower();
+                updateUpper();
+            }
+            
+            /**
+             * updateLower() takes the lower bound value and turns it into workable integers
+             * returns lower
+            */
+            function updateLower() {
+                lower = document.getElementById("lower").value;
+                lower = parseInt(lower);
+                return lower;
+            }
+            
+            /**
+             * updateUpper() takes the upper bound value and turns it into workable integers
+             * returns upper
+            */
+            function updateUpper() {
+                upper = document.getElementById("upper").value; // Lower bound
+                upper = parseInt(upper);
+                return upper;
+            }
+            
+            /**
+             * checkIfUsed()
+             * @param {int} num number being checked
+             * checks if the number has been rolled
+            */
+            function checkIfUsed(num) {
+                if (numbersUsed.lastIndexOf(num) != -1) {   // If found, roll again
+                    found = true;
+                    roll(lower, upper);
+                } else {
+                    found = false;
+                    numbersUsed.push(rolledNumber); // Add rolled number to used numbers list
+                }
+            }
+            
+            /**
+             * checkIfUsed()
+             * @param {int} lower lower-bound number
+             * @param {int} upper upper-bound number
+             * rolls the "dice" by chosing a random integer
+             * if "don't reuse" is checked, it checks the rolled number to see if it was used before
+             * returns rolledNumber
+            */
+            function roll(lower, upper) {
+                rolledNumber = parseInt(Math.floor((Math.random() * upper) + lower));
+                totalNum = upper - lower;
+                
+                // error handing
+                if (totalNum < 2) {
+                    number.innerHTML = "";
+                    endmsg.innerHTML = "Please choose a range wider than 2.";
+                } else {
+                    // error handing
+                    if (isNaN(lower) || isNaN(upper)) {
+                        number.innerHTML = "";
+                        endmsg.innerHTML = "Please use whole numbers.";
+                    } else {
+                        if (document.getElementById("reuse").checked) {
+                            if (count != totalNum + 1) {      // If all numbers are not used
+                                checkIfUsed(rolledNumber);
+                                number.innerHTML = rolledNumber;   // Last number
+                            } else {
+                                document.getElementById("roll").disabled = true;    // Disable roll button
+                                number.innerHTML = rolledNumber + endMsg;   // Last number and end message
+                                endmsg.innerHTML = "This is the last number.";
+                            }
+                        } else {
+                                number.innerHTML = rolledNumber;   // Last number and end message
+                        }
+                    }
+                }
+                count++;    // Increase count by 1
+                return rolledNumber;
+            }
+        </script>
+    </body>
+</html>
